@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTI陪玩俱乐部-管理员后台</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root {
+    --main-color: #6366F1;
+    --main-light: #8B5CF6;
+    --main-gradient: linear-gradient(90deg, #6366F1, #8B5CF6);
+    --second-color: #3B82F6;
+    --text-light: #BFDBFE;
+    --bg-dark: #0A0A0A;
+    --bg-card: rgba(255,255,255,0.05);
+    --border-color: rgba(99, 102, 241, 0.1);
+    --danger-color: #EF4444;
+    --success-color: #10B981;
+    --warning-color: #F59E0B;
+}
+body {
+    background: var(--bg-dark);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--main-color);
+    border-radius: 4px;
+}
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px 20px;
+}
+.login-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+.admin-container {
+    padding: 16px;
+    padding-bottom: 30px;
+    display: none;
+}
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.admin-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+}
+.logout-btn {
+    padding: 6px 14px;
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+}
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.admin-tab {
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    white-space: nowrap;
+    cursor: pointer;
+}
+.admin-tab.active {
+    background: var(--main-gradient);
+    color: #fff;
+    border-color: transparent;
+}
+.admin-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 16px;
+}
+.admin-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.admin-add-btn {
+    padding: 6px 14px;
+    background: var(--main-gradient);
+    border-radius: 12px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: none;
+}
+.admin-table-wrap {
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 0 16px;
+}
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+.admin-table th {
+    text-align: left;
+    padding: 10px 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    white-space: nowrap;
+}
+.admin-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    white-space: nowrap;
+}
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+.admin-op-btn {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 6px;
+    margin-bottom: 4px;
+    border: none;
+}
+.admin-op-btn.edit {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--main-color);
+}
+.admin-op-btn.delete {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+}
+.admin-op-btn.finish {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+}
+.admin-op-btn.cancel {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6B7280;
+}
+.admin-op-btn.confirm-pay {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3B82F6;
+}
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+.status-badge.unpay {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
+}
+.status-badge.pending {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3B82F6;
+}
+.status-badge.finish {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+}
+.status-badge.cancel {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6B7280;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.stats-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+.stats-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    line-height: 1;
+}
+.stats-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+}
+.table-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--main-color);
+}
+.empty-tip {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255,255,255,0.5);
+}
+.modal-mask {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: #1A1A1A;
+    width: 92%;
+    max-width: 500px;
+    border-radius: 16px;
+    padding: 24px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #fff;
+}
+.form-line {
+    margin-bottom: 18px;
+}
+.form-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+    color: rgba(255,255,255,0.7);
+}
+.form-select, .form-input, .form-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(191, 219, 254, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+}
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+.submit-btn {
+    width: 100%;
+    background: var(--main-gradient);
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    margin-top: 10px;
+}
+.close-btn {
+    text-align: center;
+    margin-top: 16px;
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    cursor: pointer;
+}
+.danger-btn {
+    background: linear-gradient(90deg, #EF4444, #DC2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+.second-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: none;
+    margin-top: 10px;
+}
+.price-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+.price-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 350px;
+}
+.price-table th, .price-table td {
+    padding: 8px 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
+}
+.price-table th {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+}
+.price-table .form-input {
+    padding: 8px 10px;
+    font-size: 12px;
+}
+.price-add-row {
+    display: inline-block;
+    padding: 6px 12px;
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--main-color);
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+.price-remove-row {
+    color: #EF4444;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: center;
+}
+.qrcode-preview {
+    width: 150px;
+    height: 150px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 8px;
+}
+.qrcode-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>
+</head>
+<body>
+<div id="loginPage">
+    <div class="login-container">
+        <div class="login-title">管理员后台登录</div>
+        <div class="admin-card">
+            <div class="form-line">
+                <label class="form-label">管理员账号</label>
+                <input type="text" class="form-input" id="adminAccount" placeholder="请输入账号">
+            </div>
+            <div class="form-line">
+                <label class="form-label">管理员密码</label>
+                <input type="password" class="form-input" id="adminPwd" placeholder="请输入密码">
+            </div>
+            <button class="submit-btn" onclick="adminLogin()">登录</button>
+            <div style="text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.4)">默认账号：admin  默认密码：Xiaojunnb66</div>
+        </div>
+    </div>
+</div>
+
+<div id="adminMain" class="admin-container">
+    <div class="admin-header">
+        <div class="admin-title">GTI陪玩管理后台</div>
+        <button class="logout-btn" onclick="logoutAdmin()">退出登录</button>
+    </div>
+    <div class="admin-tabs">
+        <div class="admin-tab active" data-tab="stats" onclick="switchTab('stats')">数据总览</div>
+        <div class="admin-tab" data-tab="member" onclick="switchTab('member')">成员管理</div>
+        <div class="admin-tab" data-tab="order" onclick="switchTab('order')">订单管理</div>
+        <div class="admin-tab" data-tab="setting" onclick="switchTab('setting')">系统设置</div>
+    </div>
+
+    <div class="admin-tab-content" id="tab-stats">
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="stats-num" id="totalMember">0</div>
+                <div class="stats-label">陪玩总数</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-num" id="totalOrder">0</div>
+                <div class="stats-label">总订单数</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-num" id="weekOrder">0</div>
+                <div class="stats-label">本周订单</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-num" id="pendingOrder">0</div>
+                <div class="stats-label">待处理订单</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-num" id="totalRevenue">¥0</div>
+                <div class="stats-label">总营收（已付款）</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-num" id="weekRevenue">¥0</div>
+                <div class="stats-label">本周营收（已付款）</div>
+            </div>
+        </div>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <span>陪玩业绩排行榜</span>
+                <select class="form-select" style="width:auto;padding:4px 10px;" id="rankTimeType" onchange="renderStats()">
+                    <option value="week">本周</option>
+                    <option value="month">本月</option>
+                    <option value="all">全部</option>
+                </select>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>陪玩名字</th>
+                            <th>接单量</th>
+                            <th>营收金额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-tab-content" id="tab-member" style="display:none;">
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <span>陪玩成员列表</span>
+                <button class="admin-add-btn" onclick="openMemberModal()">添加成员</button>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>头像</th>
+                            <th>名字</th>
+                            <th>性别</th>
+                            <th>年龄</th>
+                            <th>在线状态</th>
+                            <th>价格表</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-tab-content" id="tab-order" style="display:none;">
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <span>订单列表</span>
+                <select class="form-select" style="width:auto;padding:4px 10px;" id="orderStatusFilter" onchange="renderOrderTable()">
+                    <option value="all">全部订单</option>
+                    <option value="0">待付款</option>
+                    <option value="1">待处理</option>
+                    <option value="2">已完成</option>
+                    <option value="3">已取消</option>
+                </select>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>下单时间</th>
+                            <th>付款时间</th>
+                            <th>陪玩</th>
+                            <th>服务项目</th>
+                            <th>服务时长</th>
+                            <th>订单金额</th>
+                            <th>用户微信</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-tab-content" id="tab-setting" style="display:none;">
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <span>首页公告设置</span>
+            </div>
+            <div class="form-line">
+                <textarea class="form-textarea" id="settingNotice" placeholder="输入首页公告内容"></textarea>
+            </div>
+            <button class="submit-btn" onclick="saveNotice()">保存公告</button>
+        </div>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <span>收款配置</span>
+            </div>
+            <div class="form-line">
+                <label class="form-label">收款二维码图片链接</label>
+                <input type="text" class="form-input" id="qrcodeUrl" placeholder="请输入微信/支付宝收款码图片链接">
+                <div class="qrcode-preview">
+                    <img src="" id="qrcodePreview" alt="收款码预览" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 200 200\'><rect width=\'200\' height=\'200\' fill=\'%23ffffff\'/><rect x=\'20\' y=\'20\' width=\'160\' height=\'160\' fill=\'%236366F1\'/><rect x=\'40\' y=\'40\' width=\'120\' height=\'120\' fill=\'%23ffffff\'/><path d=\'M60,60 L60,140 L140,140 L140,60 Z\' fill=\'%236366F1\'/><text x=\'50%\' y=\'50%\' font-size=\'14\' fill=\'white\' text-anchor=\'middle\' dy=\'.3em\'>收款码预览</text></svg>'">
+                </div>
+            </div>
+            <div class="form-line">
+                <label class="form-label">付款说明文字</label>
+                <textarea class="form-textarea" id="payDesc" placeholder="输入付款页面的说明文字"></textarea>
+            </div>
+            <div class="form-line">
+                <label class="form-label">付款超时时间（分钟）</label>
+                <input type="number" class="form-input" id="expireMinutes" placeholder="输入付款超时时间" min="1" max="60">
+            </div>
+            <button class="submit-btn" onclick="savePayConfig()">保存收款配置</button>
+        </div>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <span>管理员账号修改</span>
+            </div>
+            <div class="form-line">
+                <label class="form-label">新账号</label>
+                <input type="text" class="form-input" id="newAccount" placeholder="输入新管理员账号">
+            </div>
+            <div class="form-line">
+                <label class="form-label">新密码</label>
+                <input type="password" class="form-input" id="newPwd" placeholder="输入新管理员密码">
+            </div>
+            <button class="submit-btn" onclick="saveAdminAccount()">修改账号密码</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="memberModal">
+    <div class="modal-content">
+        <div class="modal-title" id="memberModalTitle">添加陪玩成员</div>
+        <input type="hidden" id="editMemberId">
+        <div class="form-line">
+            <label class="form-label">陪玩名字</label>
+            <input type="text" class="form-input" id="memberName" placeholder="请输入名字">
+        </div>
+        <div class="form-line">
+            <label class="form-label">头像链接</label>
+            <input type="text" class="form-input" id="memberAvatar" placeholder="请输入头像图片链接">
+        </div>
+        <div class="form-line">
+            <label class="form-label">星座</label>
+            <input type="text" class="form-input" id="memberConstellation" placeholder="如：天蝎座">
+        </div>
+        <div class="form-line">
+            <label class="form-label">性别</label>
+            <select class="form-select" id="memberGender">
+                <option value="female">女</option>
+                <option value="male">男</option>
+            </select>
+        </div>
+        <div class="form-line">
+            <label class="form-label">年龄</label>
+            <input type="number" class="form-input" id="memberAge" placeholder="请输入年龄">
+        </div>
+        <div class="form-line">
+            <label class="form-label">在线状态</label>
+            <select class="form-select" id="memberOnline">
+                <option value="在线">在线</option>
+                <option value="离线">离线</option>
+            </select>
+        </div>
+        <div class="form-line">
+            <label class="form-label">所在地区</label>
+            <input type="text" class="form-input" id="memberLocation" placeholder="如：山东">
+        </div>
+        <div class="form-line">
+            <label class="form-label">技能描述</label>
+            <input type="text" class="form-input" id="memberDesc" placeholder="如：文语|连麦|王者荣耀">
+        </div>
+        <div class="form-line">
+            <label class="form-label">标签（用|分隔）</label>
+            <input type="text" class="form-input" id="memberTags" placeholder="如：可御可甜|共情力强">
+        </div>
+        <div class="form-line">
+            <label class="form-label">个性签名</label>
+            <input type="text" class="form-input" id="memberSignature" placeholder="请输入个性签名">
+        </div>
+        <div class="form-line">
+            <label class="form-label">角标</label>
+            <input type="text" class="form-input" id="memberBadge" placeholder="如：镇店|首席">
+        </div>
+        <div class="form-line">
+            <label class="form-label">服务价格表配置</label>
+            <div class="price-table-wrap">
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>服务项目名称</th>
+                            <th>单价（元/小时）</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="priceTableBody">
+                        <tr>
+                            <td><input type="text" class="form-input" placeholder="如：文语聊天"></td>
+                            <td><input type="number" step="0.01" class="form-input" placeholder="价格" min="0.01"></td>
+                            <td><span class="price-remove-row" onclick="removePriceRow(this)">删除</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <span class="price-add-row" onclick="addPriceRow()">+ 添加服务项目</span>
+        </div>
+        <button class="submit-btn" onclick="saveMember()">保存成员</button>
+        <div class="close-btn" onclick="closeMemberModal()">取消</div>
+    </div>
+</div>
+
+<div class="modal-mask" id="deleteConfirmModal">
+    <div class="modal-content">
+        <div class="modal-title">确认删除成员</div>
+        <input type="hidden" id="deleteMemberId">
+        <div style="text-align:center;margin-bottom:20px;line-height:1.6;">
+            <p style="font-size:16px;margin-bottom:8px;">确定要删除该成员吗？</p>
+            <p style="font-size:14px;color:rgba(255,255,255,0.6);">成员名称：<span id="deleteMemberName" style="color:#EF4444;font-weight:600;"></span></p>
+            <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:12px;">
+                删除后该成员将从用户端首页、榜单、推荐列表中完全清除，<br>已产生的历史订单数据会保留，此操作不可恢复！
+            </p>
+        </div>
+        <button class="danger-btn submit-btn" onclick="confirmDeleteMember()">确认删除</button>
+        <div class="close-btn" onclick="closeDeleteModal()">取消</div>
+    </div>
+</div>
+
+<script>
+// ===================== 核心配置 =====================
+const API = "https://api.jsonshare.cn/v1/doc/GTI_CLUB_FULL_CLOUD";
+const DEFAULT_ADMIN = { account: "admin", password: "Xiaojunnb66" };
+const ORDER_STATUS = {
+    UNPAY: 0, PENDING: 1, FINISH: 2, CANCEL: 3
+};
+const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%236366F1'/><text x='50%' y='50%' font-size='60' fill='white' text-anchor='middle' dy='.3em'>GTI</text></svg>";
+
+// 全局变量
+let isLogin = false;
+let globalData = {};
+
+// ===================== 云端数据操作 =====================
+async function fetchCloudData() {
+    try {
+        const res = await fetch(API);
+        globalData = await res.json();
+        // 初始化默认数据
+        if (!globalData.members) globalData.members = [];
+        if (!globalData.orders) globalData.orders = [];
+        if (!globalData.notice) globalData.notice = "欢迎来到GTI陪玩俱乐部！";
+        if (!globalData.payConfig) globalData.payConfig = {
+            qrcodeUrl: "", payDesc: "请扫码付款", expireMinutes: 15
+        };
+        if (!globalData.admin) globalData.admin = DEFAULT_ADMIN;
+        return globalData;
+    } catch (e) {
+        console.error("云端数据拉取失败", e);
+        return null;
+    }
+}
+
+async function updateCloudData(newData) {
+    try {
+        await fetch(API, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newData)
+        });
+        globalData = newData;
+        return true;
+    } catch (e) {
+        console.error("云端数据更新失败", e);
+        return false;
+    }
+}
+
+// ===================== 金额/时间格式化 =====================
+function formatAmount(amount) {
+    if (!amount) return "0.00";
+    return parseFloat(amount).toFixed(2);
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) return "-";
+    let date = new Date(timestamp);
+    let year = date.getFullYear();
+    let month = String(date.getMonth() + 1).padStart(2, '0');
+    let day = String(date.getDate()).padStart(2, '0');
+    let hour = String(date.getHours()).padStart(2, '0');
+    let minute = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+}
+
+// ===================== 登录相关 =====================
+async function adminLogin() {
+    let account = document.getElementById("adminAccount").value.trim();
+    let pwd = document.getElementById("adminPwd").value.trim();
+    const data = await fetchCloudData();
+    const admin = data.admin || DEFAULT_ADMIN;
+    if (!account || !pwd) {
+        alert("请输入账号和密码");
+        return;
+    }
+    if (account === admin.account && pwd === admin.password) {
+        isLogin = true;
+        alert("登录成功！");
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("adminMain").style.display = "block";
+        await renderAllPage();
+        // 3秒自动同步数据
+        setInterval(renderAllPage, 3000);
+    } else {
+        alert("账号或密码错误，请重新输入");
+    }
+}
+
+function logoutAdmin() {
+    if (confirm("确定要退出登录吗？")) {
+        isLogin = false;
+        document.getElementById("adminMain").style.display = "none";
+        document.getElementById("loginPage").style.display = "block";
+        document.getElementById("adminAccount").value = "";
+        document.getElementById("adminPwd").value = "";
+        location.reload();
+    }
+}
+
+// ===================== 标签切换 =====================
+function switchTab(tabId) {
+    document.querySelectorAll(".admin-tab").forEach(tab => tab.classList.remove("active"));
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
+    document.querySelectorAll(".admin-tab-content").forEach(content => content.style.display = "none");
+    document.getElementById(`tab-${tabId}`).style.display = "block";
+}
+
+// ===================== 页面渲染 =====================
+async function renderAllPage() {
+    if (!isLogin) return;
+    const data = await fetchCloudData();
+    if (!data) return;
+    renderStats(data);
+    renderMemberTable(data.members);
+    renderOrderTable(data.orders);
+    // 填充设置项
+    document.getElementById("settingNotice").value = data.notice || "";
+    document.getElementById("qrcodeUrl").value = data.payConfig.qrcodeUrl || "";
+    document.getElementById("payDesc").value = data.payConfig.payDesc || "";
+    document.getElementById("expireMinutes").value = data.payConfig.expireMinutes || 15;
+    document.getElementById("qrcodePreview").src = data.payConfig.qrcodeUrl || "";
+}
+
+function renderStats(data) {
+    const members = data.members || [];
+    const orders = data.orders || [];
+    const timeType = document.getElementById("rankTimeType").value;
+    const now = new Date().getTime();
+    const weekTime = 7 * 24 * 60 * 60 * 1000;
+    const monthTime = 30 * 24 * 60 * 60 * 1000;
+
+    // 基础统计
+    document.getElementById("totalMember").innerText = members.length;
+    document.getElementById("totalOrder").innerText = orders.length;
+    const weekOrder = orders.filter(item => now - item.createTime < weekTime);
+    document.getElementById("weekOrder").innerText = weekOrder.length;
+    const pendingOrder = orders.filter(item => item.status === ORDER_STATUS.PENDING);
+    document.getElementById("pendingOrder").innerText = pendingOrder.length;
+
+    // 营收统计（仅已付款）
+    let totalRevenue = 0;
+    let weekRevenue = 0;
+    orders.forEach(item => {
+        if (item.status === ORDER_STATUS.PENDING || item.status === ORDER_STATUS.FINISH) {
+            let amount = parseFloat(item.totalPrice || 0);
+            totalRevenue += amount;
+            if (now - item.createTime < weekTime) weekRevenue += amount;
+        }
+    });
+    document.getElementById("totalRevenue").innerText = `¥${formatAmount(totalRevenue)}`;
+    document.getElementById("weekRevenue").innerText = `¥${formatAmount(weekRevenue)}`;
+
+    // 排行榜
+    let filterOrders = orders;
+    if (timeType === "week") filterOrders = weekOrder;
+    if (timeType === "month") filterOrders = orders.filter(item => now - item.createTime < monthTime);
+    let rankData = {};
+    filterOrders.forEach(item => {
+        if (item.status === ORDER_STATUS.PENDING || item.status === ORDER_STATUS.FINISH) {
+            if (!rankData[item.playerName]) {
+                rankData[item.playerName] = { count: 0, revenue: 0 };
+            }
+            rankData[item.playerName].count += 1;
+            rankData[item.playerName].revenue += parseFloat(item.totalPrice || 0);
+        }
+    });
+    let rankArr = [];
+    for (let name in rankData) {
+        rankArr.push({ name, count: rankData[name].count, revenue: rankData[name].revenue });
+    }
+    rankArr.sort((a, b) => b.revenue - a.revenue);
+    let rankHtml = "";
+    rankArr.slice(0, 10).forEach((item, index) => {
+        rankHtml += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.name}</td>
+            <td>${item.count} 单</td>
+            <td>¥${formatAmount(item.revenue)}</td>
+        </tr>
+        `;
+    });
+    if (rankArr.length === 0) rankHtml = `<tr><td colspan="4" class="empty-tip">暂无业绩数据</td></tr>`;
+    document.getElementById("rankTable").innerHTML = rankHtml;
+}
+
+function renderMemberTable(members) {
+    let html = "";
+    members.forEach(item => {
+        let priceHtml = "";
+        if (item.priceList && item.priceList.length > 0) {
+            item.priceList.forEach(price => {
+                priceHtml += `${price.type}：¥${price.price}/小时<br>`;
+            });
+        } else {
+            priceHtml = "未设置";
+        }
+        html += `
+        <tr>
+            <td><img src="${item.avatar || defaultAvatar}" class="table-avatar" onerror="this.src='${defaultAvatar}'"></td>
+            <td>${item.name}</td>
+            <td>${item.gender === 'female' ? '女' : '男'}</td>
+            <td>${item.age}</td>
+            <td><span class="status-badge ${item.online === '在线' ? 'finish' : 'cancel'}">${item.online}</span></td>
+            <td><div style="font-size:12px;color:#aaa;">${priceHtml}</div></td>
+            <td>
+                <span class="admin-op-btn edit" onclick="editMember(${item.id})">编辑</span>
+                <span class="admin-op-btn delete" onclick="openDeleteModal(${item.id}, '${item.name}')">删除</span>
+            </td>
+        </tr>
+        `;
+    });
+    if (members.length === 0) html = `<tr><td colspan="7" class="empty-tip">暂无陪玩成员</td></tr>`;
+    document.getElementById("memberTable").innerHTML = html;
+}
+
+function renderOrderTable(orders) {
+    const statusFilter = document.getElementById("orderStatusFilter").value;
+    let filterOrders = orders;
+    if (statusFilter !== "all") filterOrders = orders.filter(item => item.status == statusFilter);
+    let html = "";
+    filterOrders.forEach(item => {
+        let statusText = "";
+        let statusClass = "";
+        let opHtml = "";
+        if (item.status === ORDER_STATUS.UNPAY) {
+            statusText = "待付款";
+            statusClass = "unpay";
+            opHtml = `
+            <span class="admin-op-btn confirm-pay" onclick="confirmOrderPay(${item.id})">确认收款</span>
+            <span class="admin-op-btn cancel" onclick="updateOrderStatus(${item.id}, 3)">取消订单</span>
+            `;
+        } else if (item.status === ORDER_STATUS.PENDING) {
+            statusText = "待处理";
+            statusClass = "pending";
+            opHtml = `
+            <span class="admin-op-btn finish" onclick="updateOrderStatus(${item.id}, 2)">完成</span>
+            <span class="admin-op-btn cancel" onclick="updateOrderStatus(${item.id}, 3)">取消</span>
+            `;
+        } else if (item.status === ORDER_STATUS.FINISH) {
+            statusText = "已完成";
+            statusClass = "finish";
+        } else {
+            statusText = "已取消";
+            statusClass = "cancel";
+        }
+        html += `
+        <tr>
+            <td>${item.orderNo || "-"}</td>
+            <td>${formatTime(item.createTime)}</td>
+            <td>${formatTime(item.payTime)}</td>
+            <td>${item.playerName}</td>
+            <td>${item.serviceType}</td>
+            <td>${item.serviceTime}</td>
+            <td>¥${formatAmount(item.totalPrice)}</td>
+            <td>${item.userWx}</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td>${opHtml}</td>
+        </tr>
+        `;
+    });
+    if (filterOrders.length === 0) html = `<tr><td colspan="10" class="empty-tip">暂无对应订单</td></tr>`;
+    document.getElementById("orderTable").innerHTML = html;
+}
+
+// ===================== 成员管理 =====================
+function addPriceRow() {
+    const tbody = document.getElementById("priceTableBody");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td><input type="text" class="form-input" placeholder="如：文语聊天"></td>
+        <td><input type="number" step="0.01" class="form-input" placeholder="价格" min="0.01"></td>
+        <td><span class="price-remove-row" onclick="removePriceRow(this)">删除</span></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function removePriceRow(el) {
+    const tr = el.closest("tr");
+    const tbody = document.getElementById("priceTableBody");
+    if (tbody.children.length > 1) tr.remove();
+    else alert("至少保留一个服务项目");
+}
+
+function openMemberModal() {
+    document.getElementById("memberModalTitle").innerText = "添加陪玩成员";
+    document.getElementById("editMemberId").value = "";
+    // 清空表单
+    document.getElementById("memberName").value = "";
+    document.getElementById("memberAvatar").value = "";
+    document.getElementById("memberConstellation").value = "";
+    document.getElementById("memberGender").value = "female";
+    document.getElementById("memberAge").value = "";
+    document.getElementById("memberOnline").value = "在线";
+    document.getElementById("memberLocation").value = "";
+    document.getElementById("memberDesc").value = "";
+    document.getElementById("memberTags").value = "";
+    document.getElementById("memberSignature").value = "";
+    document.getElementById("memberBadge").value = "";
+    // 重置价格表
+    document.getElementById("priceTableBody").innerHTML = `
+        <tr>
+            <td><input type="text" class="form-input" placeholder="如：文语聊天"></td>
+            <td><input type="number" step="0.01" class="form-input" placeholder="价格" min="0.01"></td>
+            <td><span class="price-remove-row" onclick="removePriceRow(this)">删除</span></td>
+        </tr>
+    `;
+    document.getElementById("memberModal").style.display = "flex";
+}
+
+function closeMemberModal() {
+    document.getElementById("memberModal").style.display = "none";
+}
+
+async function editMember(id) {
+    const data = await fetchCloudData();
+    const member = data.members.find(item => item.id === id);
+    if (!member) return;
+    document.getElementById("memberModalTitle").innerText = "编辑陪玩成员";
+    document.getElementById("editMemberId").value = member.id;
+    // 填充表单
+    document.getElementById("memberName").value = member.name;
+    document.getElementById("memberAvatar").value = member.avatar;
+    document.getElementById("memberConstellation").value = member.constellation;
+    document.getElementById("memberGender").value = member.gender;
+    document.getElementById("memberAge").value = member.age;
+    document.getElementById("memberOnline").value = member.online;
+    document.getElementById("memberLocation").value = member.location;
+    document.getElementById("memberDesc").value = member.desc;
+    document.getElementById("memberTags").value = member.tags;
+    document.getElementById("memberSignature").value = member.signature;
+    document.getElementById("memberBadge").value = member.badge || "";
+    // 填充价格表
+    const priceTbody = document.getElementById("priceTableBody");
+    priceTbody.innerHTML = "";
+    if (member.priceList && member.priceList.length > 0) {
+        member.priceList.forEach(price => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="text" class="form-input" placeholder="如：文语聊天" value="${price.type}"></td>
+                <td><input type="number" step="0.01" class="form-input" placeholder="价格" min="0.01" value="${price.price}"></td>
+                <td><span class="price-remove-row" onclick="removePriceRow(this)">删除</span></td>
+            `;
+            priceTbody.appendChild(tr);
+        });
+    } else {
+        priceTbody.innerHTML = `
+            <tr>
+                <td><input type="text" class="form-input" placeholder="如：文语聊天"></td>
+                <td><input type="number" step="0.01" class="form-input" placeholder="价格" min="0.01"></td>
+                <td><span class="price-remove-row" onclick="removePriceRow(this)">删除</span></td>
+            </tr>
+        `;
+    }
+    document.getElementById("memberModal").style.display = "flex";
+}
+
+async function saveMember() {
+    const id = document.getElementById("editMemberId").value;
+    const name = document.getElementById("memberName").value.trim();
+    if (!name) {
+        alert("请输入陪玩名字");
+        return;
+    }
+    // 收集价格表
+    const priceRows = document.querySelectorAll("#priceTableBody tr");
+    const priceList = [];
+    priceRows.forEach(row => {
+        const inputs = row.querySelectorAll("input");
+        const type = inputs[0].value.trim();
+        const price = parseFloat(inputs[1].value.trim());
+        if (type && !isNaN(price) && price > 0) {
+            priceList.push({ type, price });
+        }
+    });
+    if (priceList.length === 0) {
+        alert("请至少填写一个有效的服务项目和价格");
+        return;
+    }
+    // 组装成员数据
+    const memberData = {
+        name: name,
+        avatar: document.getElementById("memberAvatar").value.trim() || defaultAvatar,
+        constellation: document.getElementById("memberConstellation").value.trim() || "未知",
+        gender: document.getElementById("memberGender").value,
+        age: document.getElementById("memberAge").value.trim() || 18,
+        online: document.getElementById("memberOnline").value,
+        location: document.getElementById("memberLocation").value.trim() || "未知",
+        desc: document.getElementById("memberDesc").value.trim() || "暂无",
+        tags: document.getElementById("memberTags").value.trim() || "暂无",
+        signature: document.getElementById("memberSignature").value.trim() || "这个人很懒，什么都没写",
+        badge: document.getElementById("memberBadge").value.trim() || "",
+        priceList: priceList,
+        createTime: new Date().getTime()
+    };
+    const data = await fetchCloudData();
+    if (id) {
+        const index = data.members.findIndex(item => item.id == id);
+        if (index !== -1) {
+            memberData.id = parseInt(id);
+            memberData.createTime = data.members[index].createTime;
+            data.members[index] = memberData;
+        }
+    } else {
+        memberData.id = new Date().getTime();
+        data.members.push(memberData);
+    }
+    await updateCloudData(data);
+    alert("保存成功！用户端刷新页面即可同步更新");
+    closeMemberModal();
+    renderMemberTable(data.members);
+}
+
+// 删除成员
+function openDeleteModal(id, name) {
+    document.getElementById("deleteMemberId").value = id;
+    document.getElementById("deleteMemberName").innerText = name;
+    document.getElementById("deleteConfirmModal").style.display = "flex";
+}
+
+function closeDeleteModal() {
+    document.getElementById("deleteConfirmModal").style.display = "none";
+}
+
+async function confirmDeleteMember() {
+    const memberId = parseInt(document.getElementById("deleteMemberId").value);
+    const data = await fetchCloudData();
+    data.members = data.members.filter(item => item.id !== memberId);
+    await updateCloudData(data);
+    alert("成员已成功删除！");
+    closeDeleteModal();
+    renderMemberTable(data.members);
+}
+
+// ===================== 订单管理 =====================
+async function updateOrderStatus(id, status) {
+    const data = await fetchCloudData();
+    const index = data.orders.findIndex(item => item.id === id);
+    if (index !== -1) {
+        data.orders[index].status = status;
+        if (status === ORDER_STATUS.FINISH) data.orders[index].finishTime = new Date().getTime();
+        await updateCloudData(data);
+        renderOrderTable(data.orders);
+    }
+}
+
+async function confirmOrderPay(id) {
+    if (!confirm("确定要确认该订单已收款吗？确认后订单将进入待处理状态")) return;
+    const data = await fetchCloudData();
+    const index = data.orders.findIndex(item => item.id === id);
+    if (index !== -1) {
+        data.orders[index].status = ORDER_STATUS.PENDING;
+        data.orders[index].payTime = new Date().getTime();
+        await updateCloudData(data);
+        alert("收款确认成功！");
+        renderOrderTable(data.orders);
+    }
+}
+
+// ===================== 系统设置 =====================
+async function saveNotice() {
+    const notice = document.getElementById("settingNotice").value.trim();
+    const data = await fetchCloudData();
+    data.notice = notice;
+    await updateCloudData(data);
+    alert("公告保存成功！用户端打开即可同步更新");
+}
+
+async function savePayConfig() {
+    const payConfig = {
+        qrcodeUrl: document.getElementById("qrcodeUrl").value.trim(),
+        payDesc: document.getElementById("payDesc").value.trim(),
+        expireMinutes: parseInt(document.getElementById("expireMinutes").value) || 15
+    };
+    if (payConfig.expireMinutes < 1 || payConfig.expireMinutes > 60) {
+        alert("超时时间请设置1-60分钟之间");
+        return;
+    }
+    const data = await fetchCloudData();
+    data.payConfig = payConfig;
+    await updateCloudData(data);
+    alert("收款配置保存成功！用户端刷新页面即可同步更新");
+}
+
+async function saveAdminAccount() {
+    const newAccount = document.getElementById("newAccount").value.trim();
+    const newPwd = document.getElementById("newPwd").value.trim();
+    if (!newAccount || !newPwd) {
+        alert("请输入新的账号和密码");
+        return;
+    }
+    const data = await fetchCloudData();
+    data.admin = { account: newAccount, password: newPwd };
+    await updateCloudData(data);
+    alert("账号密码修改成功！请用新账号重新登录");
+    logoutAdmin();
+}
+
+// 收款码预览实时更新
+document.getElementById("qrcodeUrl").addEventListener("input", function() {
+    document.getElementById("qrcodePreview").src = this.value || "";
+});
+
+// 点击弹窗空白处关闭
+document.querySelectorAll(".modal-mask").forEach(modal => {
+    modal.addEventListener("click", function(e) {
+        if (e.target === this) this.style.display = "none";
+    });
+});
+</script>
+</body>
+</html>
